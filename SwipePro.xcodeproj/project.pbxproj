@@ -11,6 +11,7 @@
 		B76A05EE2CF09ACF009C3CB5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76A05ED2CF09ACF009C3CB5 /* ContentView.swift */; };
 		B76A05F02CF09AD3009C3CB5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B76A05EF2CF09AD3009C3CB5 /* Assets.xcassets */; };
 		B76A05F32CF09AD3009C3CB5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B76A05F22CF09AD3009C3CB5 /* Preview Assets.xcassets */; };
+		B76A06032CF09DC2009C3CB5 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76A06022CF09DC2009C3CB5 /* Color.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		B76A05ED2CF09ACF009C3CB5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B76A05EF2CF09AD3009C3CB5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B76A05F22CF09AD3009C3CB5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		B76A06022CF09DC2009C3CB5 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,11 @@
 		B76A05EA2CF09ACE009C3CB5 /* SwipePro */ = {
 			isa = PBXGroup;
 			children = (
+				B76A05F92CF09BCA009C3CB5 /* Utilities */,
+				B76A05FD2CF09C06009C3CB5 /* Core */,
+				B76A05FC2CF09BF4009C3CB5 /* Extensions */,
+				B76A05FB2CF09BE7009C3CB5 /* Models */,
+				B76A05FA2CF09BDA009C3CB5 /* Services */,
 				B76A05EB2CF09ACE009C3CB5 /* SwipeProApp.swift */,
 				B76A05ED2CF09ACF009C3CB5 /* ContentView.swift */,
 				B76A05EF2CF09AD3009C3CB5 /* Assets.xcassets */,
@@ -65,6 +72,74 @@
 				B76A05F22CF09AD3009C3CB5 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B76A05F92CF09BCA009C3CB5 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		B76A05FA2CF09BDA009C3CB5 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B76A05FB2CF09BE7009C3CB5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B76A05FC2CF09BF4009C3CB5 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B76A06022CF09DC2009C3CB5 /* Color.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		B76A05FD2CF09C06009C3CB5 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				B76A05FE2CF09C09009C3CB5 /* Components */,
+				B76A05FF2CF09C16009C3CB5 /* Home */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		B76A05FE2CF09C09009C3CB5 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		B76A05FF2CF09C16009C3CB5 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				B76A06012CF09C1F009C3CB5 /* ViewModels */,
+				B76A06002CF09C1B009C3CB5 /* Views */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		B76A06002CF09C1B009C3CB5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B76A06012CF09C1F009C3CB5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +214,7 @@
 			files = (
 				B76A05EE2CF09ACF009C3CB5 /* ContentView.swift in Sources */,
 				B76A05EC2CF09ACE009C3CB5 /* SwipeProApp.swift in Sources */,
+				B76A06032CF09DC2009C3CB5 /* Color.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
