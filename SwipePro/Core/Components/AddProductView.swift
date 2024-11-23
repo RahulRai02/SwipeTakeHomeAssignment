@@ -17,7 +17,7 @@ struct AddProductView: View {
     
     let productTypes = ["Electronics", "Clothing", "Grocery", "Books", "Accessories", "Others"]
     
-
+    
     
     var body: some View {
         NavigationView {
@@ -151,6 +151,8 @@ struct AddProductView: View {
                 vm.isSubmitting = false
                 if success {
                     vm.alertItem = AlertContext.addProductSuccess
+//                    dataService.getProducts()
+                    vm.dataService.getProducts()
                     clearForm()
                 } else {
                     vm.alertItem = AlertContext.addProductError

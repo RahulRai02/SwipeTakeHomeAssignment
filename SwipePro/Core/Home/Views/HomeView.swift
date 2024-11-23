@@ -26,11 +26,11 @@ struct HomeView: View {
                     
                     productGrid
                         .transition(.move(edge: .leading))
-                        .onAppear{
-                            print("😤Getting all products")
-                            vm.refreshAllProducts()
-                            print("😤Got all products")
-                        }
+//                        .onAppear{
+//                            print("😤Getting all products")
+////                            vm.refreshAllProducts()
+//                            print("😤Got all products")
+//                        }
                 }
                 if vm.showProductAddScreen {
                     AddProductView()

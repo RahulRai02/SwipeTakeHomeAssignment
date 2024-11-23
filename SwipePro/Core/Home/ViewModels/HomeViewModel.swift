@@ -19,7 +19,7 @@ class HomeViewModel : ObservableObject {
     @Published var sortOption: SortOption = .favorite
     @Published var showProductAddScreen: Bool = false
     
-    private let dataService = ProductDataService()
+    let dataService = ProductDataService()
     private var cancellables = Set<AnyCancellable>()
     
     
@@ -38,7 +38,7 @@ class HomeViewModel : ObservableObject {
     @Published var selectedImage: UIImage? = nil
     
     
-    @Published var isValid: Bool = false
+//    @Published var isValid: Bool = false
     @Published var showButton: Bool = false
     @Published var alertItem: AlertItem?
     
@@ -155,37 +155,12 @@ class HomeViewModel : ObservableObject {
                 self?.allProducts = returnedProducts
             }
             .store(in: &cancellables)
-        
-//        $showProductAddScreen
-//            .combineLatest(dataService.$allProducts)
-//            .sink { [weak self] (showProductAddScreen, allProducts) in
-//                //                if showProductAddScreen {
-////                print("🍔showProductAddScreen: \(showProductAddScreen)")
-////                print("🍎allProducts: \(allProducts)")
-//                self?.allProducts = allProducts
-//                //                }
-//            }
-//            .store(in: &cancellables)
-        
-        
-        $isValid
-            .sink { [weak self] (isValid) in
-                if isValid {
-                    self?.showButton = true
-                } else {
-                    self?.showButton = false
-                }
-            }
-            .store(in: &cancellables)
-        
-        
-    }
+        }
     
     func toggleFavorite(for product: Product) {
         
         if let index = dataService.allProducts.firstIndex(where: { $0.id == product.id }) {
               dataService.allProducts[index].isFavorite.toggle()
-//            allProducts = sortProductsByFavorite(products: dataService.allProducts)
           }
     }
     

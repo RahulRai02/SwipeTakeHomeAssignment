@@ -16,6 +16,7 @@ class ProductDataService {
 
     
     init(){
+        print("ProductDataService initialized")
         getProducts()
     }
     
