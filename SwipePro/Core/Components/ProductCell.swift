@@ -85,8 +85,8 @@ struct CategoryItemTag: View {
         Text(text)
             .font(.system(size: 8, weight: .medium))
             .foregroundColor(textColor)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(backgroundColor)
             .cornerRadius(8)
     }

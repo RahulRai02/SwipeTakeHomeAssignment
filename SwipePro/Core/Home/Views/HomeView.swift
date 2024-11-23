@@ -11,7 +11,7 @@ struct HomeView: View {
     @EnvironmentObject private var vm: HomeViewModel
 //    @State private var text: String = ""
     
-    @State private var showProductAddScreen: Bool = false
+   
     var body: some View {
         ZStack{
             Color.theme.background
@@ -21,14 +21,18 @@ struct HomeView: View {
                 homeHeader
                 
                 
-                if !showProductAddScreen {
+                if !vm.showProductAddScreen {
                     SearchBarView(searchText: $vm.searchText)
-//                        .transition(.move(edge: .top))
                     
                     productGrid
                         .transition(.move(edge: .leading))
+                        .onAppear{
+                            print("😤Getting all products")
+                            vm.refreshAllProducts()
+                            print("😤Got all products")
+                        }
                 }
-                if showProductAddScreen {
+                if vm.showProductAddScreen {
                     AddProductView()
                         .transition(.move(edge: .trailing))
                 }
@@ -37,6 +41,8 @@ struct HomeView: View {
                 Spacer()
             }
         }
+        
+
     }
 }
 
@@ -48,23 +54,30 @@ struct HomeView: View {
 extension HomeView {
     private var homeHeader: some View {
         HStack{
-            CircleButtonView(iconName: showProductAddScreen ? "plus" : "info")
-                .animation(.none)
-                .background(
-                    CircleButtonAnimationView(animate: $showProductAddScreen)
-                )
+            CircleButtonView(iconName: vm.showProductAddScreen ? "plus" : "info")
+                    .opacity(vm.showProductAddScreen ? 0.0 : 1.0)
+                    .disabled(vm.showProductAddScreen ? true : false)
+                
+                    .animation(.none)
+//                .background(
+//                    CircleButtonAnimationView(animate: $vm.showProductAddScreen)
+//                )
             Spacer()
-            Text(showProductAddScreen ? "Add Products" : "Products")
+            Text(vm.showProductAddScreen ? "Add Products" : "Products")
                 .font(.headline)
                 .fontWeight(.heavy)
                 .foregroundColor(Color.theme.accent)
                 .animation(.none)
             Spacer()
             CircleButtonView(iconName: "chevron.right")
-                .rotationEffect(Angle(degrees: showProductAddScreen ? 180 : 0))
+                .rotationEffect(Angle(degrees: vm.showProductAddScreen ? 180 : 0))
                 .onTapGesture {
+//                    vm.refreshAllProducts()
                     withAnimation(.spring()) {
-                        showProductAddScreen.toggle()
+//                        vm.refreshAllProducts()
+                        
+                        vm.showProductAddScreen.toggle()
+                        
                     }
                 }
         }

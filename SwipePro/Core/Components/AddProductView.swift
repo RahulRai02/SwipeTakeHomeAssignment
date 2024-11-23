@@ -9,17 +9,7 @@ import SwiftUI
 import Combine
 
 struct AddProductView: View {
-    @State private var productName: String = ""
-    @State private var sellingPrice: String = ""
-    @State private var taxRate: String = ""
-    @State private var productType: String = ""
-    @State private var selectedImage: UIImage? = nil
-    
-    
-    @State private var isImagePickerPresented: Bool = false
-    @State private var isSubmitting: Bool = false
-    @State private var submissionFeedback: String? = nil
-    
+        
     // Viewmodel
     @EnvironmentObject private var vm: HomeViewModel
     
@@ -27,28 +17,70 @@ struct AddProductView: View {
     
     let productTypes = ["Electronics", "Clothing", "Grocery", "Books", "Accessories", "Others"]
     
+
+    
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Product Details")) {
-                    Picker("Product Type", selection: $productType) {
+                // MARK: - Product Details
+                Section(header: Text("Product Details").foregroundColor(Color.theme.accent)) {
+                    Picker("Product Type", selection: $vm.productType) {
                         ForEach(productTypes, id: \.self) {
                             Text($0)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
+                    TextField("Product Name", text: $vm.productName)
+                        .foregroundColor(Color.theme.accent)
+                        .overlay(
+                            ZStack{
+                                Text("☹️")
+                                    .opacity(vm.isValidProductName ? 0.0 : 1.0)
+                                Text("😄")
+                                    .opacity(vm.isValidProductName ? 1.0 : 0.0)
+                            }
+                            .font(.title)
+                            .padding(.trailing),
+                            alignment: .trailing
+                        )
                     
-                    TextField("Product Name", text: $productName)
-                    
-                    TextField("Selling Price", text: $sellingPrice)
+                    TextField("Selling Price", text: $vm.sellingPrice)
                         .keyboardType(.decimalPad)
-                    
-                    TextField("Tax Rate", text: $taxRate)
+                        .foregroundColor(Color.theme.accent)
+                        .overlay(
+                            ZStack{
+                            Text("😕")
+                                .opacity(vm.isValidSellingPrice ? 0.0 : 1.0)
+
+                            Text("😄")
+                                .opacity(vm.isValidSellingPrice ? 1.0 : 0.0)
+                            }
+                                .font(.title)
+                                .padding(.trailing),
+                            alignment: .trailing
+                        )
+                    TextField("Tax Rate", text: $vm.taxRate)
                         .keyboardType(.decimalPad)
+                        .foregroundColor(Color.theme.accent)
+                        .overlay(
+                            ZStack{
+                                Text("😕")
+                                    .opacity(vm.isValidTaxRate ? 0.0 : 1.0)
+                                Text("😄")
+                                    .opacity(vm.isValidTaxRate ? 1.0 : 0.0)
+                            }
+                                .font(.title)
+                                .padding(.trailing),
+                            alignment: .trailing
+                        )
+                    Button("Clear fields") {
+                        clearForm()
+                    }
+                    .foregroundColor(Color.theme.red)
                 }
-                
+                // MARK: - Product Image Selection
                 Section(header: Text("Product Image")) {
-                    if let image = selectedImage {
+                    if let image = vm.selectedImage {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFit()
@@ -56,80 +88,75 @@ struct AddProductView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     } else {
                         Button(action: {
-                            isImagePickerPresented = true
+                            vm.isImagePickerPresented = true
                         }) {
                             Text("Select Image")
                         }
                     }
                 }
                 
-                Button(action: submitProduct) {
-                    HStack {
-                        Spacer()
-                        if isSubmitting {
-                            ProgressView()
-                        } else {
-                            Text("Submit Product")
+                Section{
+                    // MARK: - Submit Button ACTION
+                    Button(action: submitProduct) {
+                        HStack {
+                            Spacer()
+                            if vm.isSubmitting {
+                                ProgressView()
+                            } else {
+                                Text("Submit Product")
+                            }
+                            Spacer()
                         }
-                        Spacer()
                     }
+                    .foregroundColor(Color.theme.green)
+                    .disabled(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? false : true)
                 }
-                .disabled(!isFormValid())
                 
-                if let feedback = submissionFeedback {
-                    Text(feedback)
-                        .foregroundColor(.green)
-                        .font(.footnote)
-                }
+
             }
-            //            .navigationTitle("Add Product")
+            
         }
-        .sheet(isPresented: $isImagePickerPresented) {
-            ImagePicker(image: $selectedImage)
+        .sheet(isPresented: $vm.isImagePickerPresented) {
+            ImagePicker(image: $vm.selectedImage)
         }
+        
+        .alert(item: $vm.alertItem){ alertItem in
+            Alert(title: alertItem.title,
+                  message: alertItem.message,
+                  dismissButton: alertItem.dismissButton)
+        }
+
+        
     }
     
-    // MARK: - Validation
-    private func isFormValid() -> Bool {
-        guard !productName.isEmpty,
-              !sellingPrice.isEmpty,
-              !taxRate.isEmpty,
-              !productType.isEmpty,
-              Double(sellingPrice) != nil,
-              Double(taxRate) != nil else {
-            return false
-        }
-        return true
-    }
     
     private func submitProduct() {
-        guard let price = Double(sellingPrice),
-              let tax = Double(taxRate) else {
-            submissionFeedback = "Please complete all fields and select a valid image."
+        guard let price = Double(vm.sellingPrice),
+              let tax = Double(vm.taxRate) else {
+            vm.submissionFeedback = "Please complete all fields"
             return
         }
 
-        isSubmitting = true
-        submissionFeedback = nil // Clear previous feedback
+        vm.isSubmitting = true
+        vm.submissionFeedback = nil // Clear previous feedback
         
         uploadProductWithMultipartData(
-            productName: productName,
-            productType: productType,
+            productName: vm.productName,
+            productType: vm.productType,
             price: String(price),
             tax: String(tax),
-            image: selectedImage
+            image: vm.selectedImage
         ) { success in
             DispatchQueue.main.async {
+                vm.isSubmitting = false
                 if success {
-                    submissionFeedback = "Product Added Successfully!"
+                    vm.alertItem = AlertContext.addProductSuccess
+                    clearForm()
                 } else {
-                    submissionFeedback = "Failed to add product. Please try again."
+                    vm.alertItem = AlertContext.addProductError
                 }
-                isSubmitting = false
             }
         }
-
-        vm.loadProducts()
         // Reset form after submission
         clearForm()
     }
@@ -137,11 +164,11 @@ struct AddProductView: View {
     
     // MARK: - Clear Form
     private func clearForm() {
-        productName = ""
-        sellingPrice = ""
-        taxRate = ""
-        productType = ""
-        selectedImage = nil
+        vm.productName = ""
+        vm.sellingPrice = ""
+        vm.taxRate = ""
+        vm.productType = ""
+        vm.selectedImage = nil
     }
   
     func uploadProductWithMultipartData(productName: String, productType: String, price: String, tax: String, image: UIImage?, completion: @escaping (Bool) -> Void) {
@@ -199,58 +226,6 @@ struct AddProductView: View {
         }
         task.resume()
     }
-
-
-//    func uploadProductWithMultipartData(productName: String, productType: String, price: String, tax: String, image: UIImage?) {
-//        // API Endpoint
-//        guard let url = URL(string: "https://app.getswipe.in/api/public/add") else { return }
-//        
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "POST"
-//        
-//        // Boundary
-//        let boundary = "Boundary-\(UUID().uuidString)"
-//        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-//        
-//        // Construct multipart body
-//        let body = createMultipartBody(
-//            parameters: [
-//                "product_name": productName,
-//                "product_type": productType,
-//                "price": price,
-//                "tax": tax
-//            ],
-//            image: image,
-//            boundary: boundary
-//        )
-//        request.httpBody = body
-//        
-//        // Send request using URLSession
-//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-//            if let error = error {
-//                print("Error: \(error.localizedDescription)")
-//                return
-//            }
-//            
-//            guard let data = data else {
-//                print("No response data received")
-//                return
-//            }
-//            
-//            // Parse response
-//            do {
-//                if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-//                    print("Response: \(jsonResponse)")
-//                }
-//
-//                
-//            } catch {
-//                print("Failed to parse response: \(error.localizedDescription)")
-//            }
-//        }
-//        task.resume()
-//
-//    }
 
     func createMultipartBody(parameters: [String: String], image: UIImage?, boundary: String) -> Data {
         var body = Data()

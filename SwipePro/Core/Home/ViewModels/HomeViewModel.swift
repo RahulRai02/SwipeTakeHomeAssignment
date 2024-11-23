@@ -17,9 +17,36 @@ class HomeViewModel : ObservableObject {
     
     @Published var searchText: String = ""
     @Published var sortOption: SortOption = .favorite
+    @Published var showProductAddScreen: Bool = false
     
     private let dataService = ProductDataService()
     private var cancellables = Set<AnyCancellable>()
+    
+    
+    @Published var productName: String = ""
+    @Published var isValidProductName: Bool = false
+    
+    @Published var sellingPrice: String = ""
+    @Published var isValidSellingPrice: Bool = false
+    
+    @Published var taxRate: String = ""
+    @Published var isValidTaxRate: Bool = false
+    
+    @Published var productType: String = ""
+//    @Published var isValidProductType: Bool = false
+    
+    @Published var selectedImage: UIImage? = nil
+    
+    
+    @Published var isValid: Bool = false
+    @Published var showButton: Bool = false
+    @Published var alertItem: AlertItem?
+    
+    
+    @Published var isImagePickerPresented: Bool = false
+    @Published var isSubmitting: Bool = false
+
+    @Published var submissionFeedback: String? = nil
     
     
     enum SortOption {
@@ -30,15 +57,75 @@ class HomeViewModel : ObservableObject {
     
     init(){
         addSubscribers()
+        
+        productNameSubscriber()
+        sellingPriceSubscriber()
+        taxRateSubscriber()
+//        productTypeSubscriber()
+        
     }
     
+    func productNameSubscriber(){
+        $productName
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .map({ (productName) -> Bool in
+                if productName.count > 0 && productName.count < 20 {
+                    return true
+                }
+                return false
+            })
+            .sink(receiveValue: { [weak self] (isValidProductName) in
+                self?.isValidProductName = isValidProductName
+            })
+            .store(in: &cancellables)
+    }
+    
+    func sellingPriceSubscriber(){
+        $sellingPrice
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .map({ (sellingPrice) -> Bool in
+                if let _ = Double(sellingPrice), !sellingPrice.isEmpty {
+                    return true
+                }
+                return false
+            })
+            .sink(receiveValue: { [weak self] (isValidSellingPrice) in
+                self?.isValidSellingPrice = isValidSellingPrice
+            })
+            .store(in: &cancellables)
+    }
+    
+    func taxRateSubscriber(){
+        $taxRate
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .map({ (taxRate) -> Bool in
+                if let _ = Double(taxRate), !taxRate.isEmpty {
+                    return true
+                }
+                return false
+            })
+            .sink(receiveValue: { [weak self] (isValidTaxRate) in
+                self?.isValidTaxRate = isValidTaxRate
+            })
+            .store(in: &cancellables)
+    }
+                     
+    
+    func refreshAllProducts() {
+//        print("Fetching fresh data")
+        dataService.getProducts()
+//        print("Fetched fresh data")
+    }
+
+    
+    
+    // MARK: - FILTER AND SORT
     private func sortProductsByOption(sort: SortOption, products: [Product]) -> [Product] {
         switch sort{
         case .favorite:
             return products.sorted { $0.isFavorite && !$1.isFavorite }
         }
     }
-    
     
     private func filterAndSortCoinsByFavorite(text: String, product: [Product], sort: SortOption ) -> [Product] {
         var filteredCoins = filterCoins(text: text, product: product)
@@ -58,14 +145,7 @@ class HomeViewModel : ObservableObject {
         }
     }
     
-    
     func addSubscribers(){
-//        dataService.$allProducts
-//            .sink { [weak self] (returnedProducts) in
-//                self?.allProducts = returnedProducts
-//            }
-//            .store(in: &cancellables)
-        
         $searchText
             .combineLatest(dataService.$allProducts, $sortOption)
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
@@ -75,6 +155,30 @@ class HomeViewModel : ObservableObject {
                 self?.allProducts = returnedProducts
             }
             .store(in: &cancellables)
+        
+//        $showProductAddScreen
+//            .combineLatest(dataService.$allProducts)
+//            .sink { [weak self] (showProductAddScreen, allProducts) in
+//                //                if showProductAddScreen {
+////                print("🍔showProductAddScreen: \(showProductAddScreen)")
+////                print("🍎allProducts: \(allProducts)")
+//                self?.allProducts = allProducts
+//                //                }
+//            }
+//            .store(in: &cancellables)
+        
+        
+        $isValid
+            .sink { [weak self] (isValid) in
+                if isValid {
+                    self?.showButton = true
+                } else {
+                    self?.showButton = false
+                }
+            }
+            .store(in: &cancellables)
+        
+        
     }
     
     func toggleFavorite(for product: Product) {
@@ -85,18 +189,7 @@ class HomeViewModel : ObservableObject {
           }
     }
     
-    func loadProducts(){
-        dataService.$allProducts
-            .sink { [weak self] (returnedProducts) in
-                self?.allProducts = returnedProducts
-            }
-            .store(in: &cancellables)
-    }
-    
 
-    
-//    private func sortProductsByFavorite(products: [Product]) -> [Product] {
-//        return products.sorted { $0.isFavorite && !$1.isFavorite }
-//    }
+
     
 }

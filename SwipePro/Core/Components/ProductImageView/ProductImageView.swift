@@ -19,11 +19,17 @@ struct ProductImageView: View {
         if let image = vm.image {
             Image(uiImage: image)
                 .resizable()
-                .scaledToFit()
-                .frame(height: 150)
+                .frame(width: 150, height: 150)
+                .aspectRatio(contentMode: .fit)
                 .clipped()
                 .cornerRadius(12)
-                .padding(.horizontal, 4)
+                .padding(.vertical, 8)
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 150, height: 150)
+//                .clipped()
+//                .cornerRadius(12)
+//                .padding(.horizontal, 4)
             
         }else if vm.isLoading {
             ProgressView()
