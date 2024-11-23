@@ -40,7 +40,9 @@ struct ProductCell: View {
                         onFavouritePressed?()
                     }) {
                         Image(systemName: product.isFavorite ? "heart.fill" : "heart")
+                        
                             .foregroundColor(product.isFavorite ? Color.theme.red : Color.gray)
+//                            .animation(.easeInOut)
                     }
                 }
 

@@ -19,8 +19,20 @@ struct HomeView: View {
             
             VStack{
                 homeHeader
-                SearchBarView(searchText: $vm.searchText)
-                productGrid
+                
+                
+                if !showProductAddScreen {
+                    SearchBarView(searchText: $vm.searchText)
+//                        .transition(.move(edge: .top))
+                    
+                    productGrid
+                        .transition(.move(edge: .leading))
+                }
+                if showProductAddScreen {
+                    AddProductView()
+                        .transition(.move(edge: .trailing))
+                }
+//                productGrid
 
                 Spacer()
             }
@@ -42,7 +54,7 @@ extension HomeView {
                     CircleButtonAnimationView(animate: $showProductAddScreen)
                 )
             Spacer()
-            Text(showProductAddScreen ? "Sell Products" : "Products")
+            Text(showProductAddScreen ? "Add Products" : "Products")
                 .font(.headline)
                 .fontWeight(.heavy)
                 .foregroundColor(Color.theme.accent)
@@ -69,14 +81,14 @@ extension HomeView {
                       spacing: 12) {
                 ForEach(vm.allProducts) { product in
                     ProductCell(product: product) {
-                        withAnimation(.easeInOut(duration: 0.5)){
+                        withAnimation(.easeInOut){
                             vm.toggleFavorite(for: product)
                         }
                         
                     }
                 }
             }
-                      .padding()
+            .padding()
         }
     }
 }

@@ -15,6 +15,7 @@ struct SwipeProApp: App {
             NavigationView{
                 HomeView()
                     .navigationBarBackButtonHidden()
+            
             }
             .environmentObject(vm)
         }

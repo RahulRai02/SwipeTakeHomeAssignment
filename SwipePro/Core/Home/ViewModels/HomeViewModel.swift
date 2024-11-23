@@ -13,6 +13,7 @@ import SwiftUI
 class HomeViewModel : ObservableObject {
 //    @Published var allProducts:
     @Published var allProducts: [Product] = []
+
     
     @Published var searchText: String = ""
     @Published var sortOption: SortOption = .favorite
@@ -70,17 +71,6 @@ class HomeViewModel : ObservableObject {
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
 
             .map(filterAndSortCoinsByFavorite)
-//            .map { (text, startingProducts) -> [Product] in
-//                guard !text.isEmpty else {
-//                    return startingProducts
-//                }
-//                let lowercasedText = text.lowercased()
-//                let filteredProducts = startingProducts.filter { (product) -> Bool in
-//                    return (product.productName.lowercased().contains(lowercasedText)) || product.productType.lowercased().contains(lowercasedText)
-//                }
-//                return filteredProducts
-////                return self.sortProductsByFavorite(products: filteredProducts)
-//            }
             .sink { [weak self] (returnedProducts) in
                 self?.allProducts = returnedProducts
             }
@@ -93,6 +83,14 @@ class HomeViewModel : ObservableObject {
               dataService.allProducts[index].isFavorite.toggle()
 //            allProducts = sortProductsByFavorite(products: dataService.allProducts)
           }
+    }
+    
+    func loadProducts(){
+        dataService.$allProducts
+            .sink { [weak self] (returnedProducts) in
+                self?.allProducts = returnedProducts
+            }
+            .store(in: &cancellables)
     }
     
 
