@@ -9,36 +9,38 @@ import SwiftUI
 
 struct ProductCell: View {
     let product : Product
+    var onFavouritePressed: (() -> Void)? = nil
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 4) {
             // Product Image
 
-            Image("waterFall")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 150)
-                .clipped()
-                .cornerRadius(12)
-                .padding(.horizontal, 4)
+            ProductImageView(product: product)
 
             // Product Details
             VStack(alignment: .leading, spacing: 2) {
   
-                Text(product.productName ?? "No Name")
+                Text(product.productName)
                     .font(.headline)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .foregroundColor(Color.theme.accent)
 
                 // Tags for Category and Tax
                 HStack(spacing: 4) {
-                    CategoryItemTag(text: product.productType ?? "Mix", backgroundColor: Color.purple.opacity(0.4), textColor: Color.primary)
+                    CategoryItemTag(text: product.productType, backgroundColor: Color.purple.opacity(0.4), textColor: Color.primary)
                     if let tax = product.tax {
                         CategoryItemTag(
                             text: "\(tax)%",
                             backgroundColor: Color.purple.opacity(0.4),
                             textColor: Color.primary
                         )
+                    }
+                    Spacer()
+                    Button(action: {
+                        onFavouritePressed?()
+                    }) {
+                        Image(systemName: product.isFavorite ? "heart.fill" : "heart")
+                            .foregroundColor(product.isFavorite ? Color.theme.red : Color.gray)
                     }
                 }
 
@@ -53,8 +55,7 @@ struct ProductCell: View {
                     Spacer()
                 }
             }
-//            .frame(maxWidth: .infinity)
-//            .background(Color.green)
+
             .padding([.horizontal, .bottom], 12)
 //            .padding()
    

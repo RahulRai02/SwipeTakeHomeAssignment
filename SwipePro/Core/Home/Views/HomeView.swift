@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject private var vm: HomeViewModel
+//    @State private var text: String = ""
     
     @State private var showProductAddScreen: Bool = false
     var body: some View {
@@ -18,6 +19,7 @@ struct HomeView: View {
             
             VStack{
                 homeHeader
+                SearchBarView(searchText: $vm.searchText)
                 productGrid
 
                 Spacer()
@@ -56,15 +58,25 @@ extension HomeView {
         }
         .padding(.horizontal)
     }
+    
+    
+    
     private var productGrid: some View {
         ScrollView{
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 2, alignment: nil),
-                                GridItem(.flexible(), spacing: nil, alignment: .top)], content: {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12, alignment: nil),
+                                GridItem(.flexible(), spacing: 12, alignment: nil)],
+                      alignment: .leading,
+                      spacing: 12) {
                 ForEach(vm.allProducts) { product in
-                    ProductCell(product: product)
+                    ProductCell(product: product) {
+                        withAnimation(.easeInOut(duration: 0.5)){
+                            vm.toggleFavorite(for: product)
+                        }
+                        
+                    }
                 }
-                
-            })
+            }
+                      .padding()
         }
     }
 }

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B724A57D2CF112CD005D88D1 /* ProductImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B724A57C2CF112CC005D88D1 /* ProductImageService.swift */; };
+		B724A5802CF119C9005D88D1 /* ProductImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B724A57F2CF119C8005D88D1 /* ProductImageView.swift */; };
+		B724A5822CF11A30005D88D1 /* ProductImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B724A5812CF11A30005D88D1 /* ProductImageViewModel.swift */; };
+		B724A5842CF12C7A005D88D1 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B724A5832CF12C79005D88D1 /* SearchBarView.swift */; };
 		B76A05EC2CF09ACE009C3CB5 /* SwipeProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76A05EB2CF09ACE009C3CB5 /* SwipeProApp.swift */; };
 		B76A05EE2CF09ACF009C3CB5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76A05ED2CF09ACF009C3CB5 /* ContentView.swift */; };
 		B76A05F02CF09AD3009C3CB5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B76A05EF2CF09AD3009C3CB5 /* Assets.xcassets */; };
@@ -22,6 +26,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B724A57C2CF112CC005D88D1 /* ProductImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageService.swift; sourceTree = "<group>"; };
+		B724A57F2CF119C8005D88D1 /* ProductImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageView.swift; sourceTree = "<group>"; };
+		B724A5812CF11A30005D88D1 /* ProductImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageViewModel.swift; sourceTree = "<group>"; };
+		B724A5832CF12C79005D88D1 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		B76A05E82CF09ACE009C3CB5 /* SwipePro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwipePro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B76A05EB2CF09ACE009C3CB5 /* SwipeProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeProApp.swift; sourceTree = "<group>"; };
 		B76A05ED2CF09ACF009C3CB5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -48,6 +56,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B724A57E2CF119AA005D88D1 /* ProductImageView */ = {
+			isa = PBXGroup;
+			children = (
+				B724A57F2CF119C8005D88D1 /* ProductImageView.swift */,
+				B724A5812CF11A30005D88D1 /* ProductImageViewModel.swift */,
+			);
+			path = ProductImageView;
+			sourceTree = "<group>";
+		};
 		B76A05DF2CF09ACE009C3CB5 = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				B76A06112CF0D5AB009C3CB5 /* ProductDataService.swift */,
+				B724A57C2CF112CC005D88D1 /* ProductImageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -131,8 +149,10 @@
 		B76A05FE2CF09C09009C3CB5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B724A57E2CF119AA005D88D1 /* ProductImageView */,
 				B76A06062CF0A2F9009C3CB5 /* CircleButton */,
 				B76A060B2CF0A704009C3CB5 /* ProductCell.swift */,
+				B724A5832CF12C79005D88D1 /* SearchBarView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -241,6 +261,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B724A5822CF11A30005D88D1 /* ProductImageViewModel.swift in Sources */,
 				B76A05EE2CF09ACF009C3CB5 /* ContentView.swift in Sources */,
 				B76A06052CF0A019009C3CB5 /* HomeView.swift in Sources */,
 				B76A06102CF0CA03009C3CB5 /* Product.swift in Sources */,
@@ -248,6 +269,9 @@
 				B76A05EC2CF09ACE009C3CB5 /* SwipeProApp.swift in Sources */,
 				B76A060E2CF0C6E9009C3CB5 /* HomeViewModel.swift in Sources */,
 				B76A06082CF0A313009C3CB5 /* CircleButtonView.swift in Sources */,
+				B724A57D2CF112CD005D88D1 /* ProductImageService.swift in Sources */,
+				B724A5802CF119C9005D88D1 /* ProductImageView.swift in Sources */,
+				B724A5842CF12C7A005D88D1 /* SearchBarView.swift in Sources */,
 				B76A06032CF09DC2009C3CB5 /* Color.swift in Sources */,
 				B76A060C2CF0A705009C3CB5 /* ProductCell.swift in Sources */,
 				B76A060A2CF0A328009C3CB5 /* CircleButtonAnimationView.swift in Sources */,

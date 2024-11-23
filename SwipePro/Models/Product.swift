@@ -10,9 +10,9 @@ import Foundation
 // MARK: - Product
 struct Product: Codable, Identifiable {
     var id = UUID()
-    let image: String?
+    let image: String
     let price: Double?
-    let productName, productType: String?
+    let productName, productType: String
     let tax: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -21,6 +21,8 @@ struct Product: Codable, Identifiable {
         case productType = "product_type"
         case tax
     }
+    // My property
+    var isFavorite: Bool = false
 }
 
 // MARK: - ProductList
