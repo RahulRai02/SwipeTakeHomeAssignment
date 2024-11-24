@@ -30,7 +30,6 @@ struct HomeView: View {
                     AddProductView()
                         .transition(.move(edge: .trailing))
                 }
-//                productGrid
 
                 Spacer()
             }
@@ -51,6 +50,7 @@ extension HomeView {
             CircleButtonView(iconName: vm.showProductAddScreen ? "plus" : "info")
                     .opacity(vm.showProductAddScreen ? 0.0 : 1.0)
                     .disabled(vm.showProductAddScreen ? true : false)
+        
                     .animation(.none)
 
             Spacer()
@@ -63,10 +63,7 @@ extension HomeView {
             CircleButtonView(iconName: "chevron.right")
                 .rotationEffect(Angle(degrees: vm.showProductAddScreen ? 180 : 0))
                 .onTapGesture {
-//                    vm.refreshAllProducts()
-                    withAnimation(.spring()) {
-//                        vm.refreshAllProducts()
-                        
+                    withAnimation(.spring()) {                        
                         vm.showProductAddScreen.toggle()
                         
                     }
@@ -83,7 +80,7 @@ extension HomeView {
                                 GridItem(.flexible(), spacing: 12, alignment: nil)],
                       alignment: .leading,
                       spacing: 12) {
-                ForEach(vm.allProducts, id: \.self) { product in
+                ForEach(vm.allProducts) { product in
                     ProductCell(product: product) {
                         withAnimation(.easeInOut){
                             vm.toggleFavorite(for: product)

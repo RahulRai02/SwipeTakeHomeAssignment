@@ -8,8 +8,10 @@
 import Foundation
 
 // MARK: - Product
-struct Product: Codable, Hashable {
-//    var id = UUID()
+struct Product: Codable, Identifiable {
+    var id = UUID()
+//    let id : UUID()
+//    var id : UUID
     let image: String
     let price: Double?
     let productName, productType: String
@@ -23,13 +25,27 @@ struct Product: Codable, Hashable {
     }
     // My property
     var isFavorite: Bool = false
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(productName + productType) 
+
+    var uniqueID: UInt64 {
+        let uniqueString = productName + productType + String(describing: price) + String(describing: tax) + image
+        print("Unique String: \(uniqueString)")
+        return strHash(uniqueString)
     }
+    
+    
 }
+
 
 // MARK: - ProductList
 struct ProductList: Codable {
     let products: [Product]
+}
+
+func strHash(_ str: String) -> UInt64 {
+    var result = UInt64(5381)
+    let buf = [UInt8](str.utf8)
+    for b in buf {
+        result = 127 * (result & 0x00ffffffffffffff) + UInt64(b)
+    }
+    return result
 }

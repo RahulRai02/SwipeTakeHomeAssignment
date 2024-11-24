@@ -32,7 +32,7 @@ class HomeViewModel : ObservableObject {
     @Published var taxRate: String = ""
     @Published var isValidTaxRate: Bool = false
     
-    @Published var productType: String = ""
+    @Published var productType: String = "Others"
 //    @Published var isValidProductType: Bool = false
     
     @Published var selectedImage: UIImage? = nil
