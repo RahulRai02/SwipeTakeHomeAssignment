@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject private var vm: HomeViewModel
-//    @State private var text: String = ""
-    
+    @EnvironmentObject private var vm: HomeViewModel    
    
     var body: some View {
         ZStack{
@@ -26,11 +24,7 @@ struct HomeView: View {
                     
                     productGrid
                         .transition(.move(edge: .leading))
-//                        .onAppear{
-//                            print("😤Getting all products")
-////                            vm.refreshAllProducts()
-//                            print("😤Got all products")
-//                        }
+
                 }
                 if vm.showProductAddScreen {
                     AddProductView()
@@ -57,11 +51,8 @@ extension HomeView {
             CircleButtonView(iconName: vm.showProductAddScreen ? "plus" : "info")
                     .opacity(vm.showProductAddScreen ? 0.0 : 1.0)
                     .disabled(vm.showProductAddScreen ? true : false)
-                
                     .animation(.none)
-//                .background(
-//                    CircleButtonAnimationView(animate: $vm.showProductAddScreen)
-//                )
+
             Spacer()
             Text(vm.showProductAddScreen ? "Add Products" : "Products")
                 .font(.headline)
@@ -92,7 +83,7 @@ extension HomeView {
                                 GridItem(.flexible(), spacing: 12, alignment: nil)],
                       alignment: .leading,
                       spacing: 12) {
-                ForEach(vm.allProducts) { product in
+                ForEach(vm.allProducts, id: \.self) { product in
                     ProductCell(product: product) {
                         withAnimation(.easeInOut){
                             vm.toggleFavorite(for: product)

@@ -57,7 +57,6 @@ class HomeViewModel : ObservableObject {
     
     init(){
         addSubscribers()
-        
         productNameSubscriber()
         sellingPriceSubscriber()
         taxRateSubscriber()
@@ -111,11 +110,11 @@ class HomeViewModel : ObservableObject {
     }
                      
     
-    func refreshAllProducts() {
-//        print("Fetching fresh data")
-        dataService.getProducts()
-//        print("Fetched fresh data")
-    }
+//    func refreshAllProducts() {
+////        print("Fetching fresh data")
+//        dataService.getProducts()
+////        print("Fetched fresh data")
+//    }
 
     
     
@@ -158,11 +157,12 @@ class HomeViewModel : ObservableObject {
         }
     
     func toggleFavorite(for product: Product) {
-        
-        if let index = dataService.allProducts.firstIndex(where: { $0.id == product.id }) {
-              dataService.allProducts[index].isFavorite.toggle()
-          }
+        dataService.toggleFavorite(product: product)
+//        if let index = dataService.allProducts.firstIndex(where: { $0.id == product.id }) {
+//              dataService.allProducts[index].isFavorite.toggle()
+//          }
     }
+    
     
 
 
