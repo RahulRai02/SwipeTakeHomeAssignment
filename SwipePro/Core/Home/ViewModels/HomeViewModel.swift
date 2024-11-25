@@ -12,8 +12,7 @@ import CoreData
 
 
 class HomeViewModel : ObservableObject {
-
-//    @Published var localProductVM: LocalProductViewModel = LocalProductViewModel()
+    
     @Published var allProducts: [Product] = []
 
     
@@ -25,64 +24,71 @@ class HomeViewModel : ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     
+    // For form validations
     @Published var productName: String = ""
-    @Published var isValidProductName: Bool = false
-    
     @Published var sellingPrice: String = ""
-    @Published var isValidSellingPrice: Bool = false
-    
     @Published var taxRate: String = ""
-    @Published var isValidTaxRate: Bool = false
-    
     @Published var productType: String = "Others"
-//    @Published var isValidProductType: Bool = false
-    
     @Published var selectedImage: UIImage? = nil
     
+    @Published var isValidProductName: Bool = false
+    @Published var isValidSellingPrice: Bool = false
+    @Published var isValidTaxRate: Bool = false
     
-//    @Published var isValid: Bool = false
+    
+    // showButton boolean to track if the fields are valid, then show the submit button
     @Published var showButton: Bool = false
+    
+    // Alert
     @Published var alertItem: AlertItem?
     
-    
-    @Published var isImagePickerPresented: Bool = false
+    // Form submission and feedback
     @Published var isSubmitting: Bool = false
-
     @Published var submissionFeedback: String? = nil
     
+    // Image picker
+    @Published var isImagePickerPresented: Bool = false
     
-    // Core data
+    // Core data container to store offline products
     let container: NSPersistentContainer
     @Published var savedEntities: [ProductEntity] = []
     
-    
+    // MARK: - SORT OPTIONS: Could be expanded to include more sort options
     enum SortOption {
         case favorite
     }
     
-
-    
     init(){
+        NSLog("HomeViewModel init")
+        // Initialize Core data container
         container = NSPersistentContainer(name: "ProductContainer")
         container.loadPersistentStores { description, error in
             if let error = error {
-                print("Error loading Core data \(error)")
+                NSLog("Error loading Core data \(error)")
             }else{
-                print("Successfully loaded core data")
+                NSLog("Successfully loaded core data")
             }
         }
         fetchProducts()
         
-        
-        NSLog("HomeViewModel init")
+        // Add Subscibers inorder to listen to the changes in the allProduct array from the data service
         addSubscribers()
-        productNameSubscriber()
-        sellingPriceSubscriber()
-        taxRateSubscriber()
 
-        
+
+    }
+    // MARK: - CRUD OPERATIONS FOR CORE DATA : Local Product storage in case of no internet
+    // Fetch all products from Core Data
+    func fetchProducts() {
+        let request = NSFetchRequest<ProductEntity>(entityName: "ProductEntity")
+        do {
+            savedEntities = try container.viewContext.fetch(request)
+        } catch let error {
+            NSLog("Error in fetching \(error)")
+            alertItem = AlertContext.fetchError
+        }
     }
     
+    // Delete all products from Core Data
     func deleteAll(){
         for entity in savedEntities{
             container.viewContext.delete(entity)
@@ -90,20 +96,12 @@ class HomeViewModel : ObservableObject {
         saveData()
     }
     
-        func fetchProducts() {
-            let request = NSFetchRequest<ProductEntity>(entityName: "ProductEntity")
-            do {
-                savedEntities = try container.viewContext.fetch(request)
-            } catch let error {
-                print("Error in fetching \(error)")
-            }
-        }
-        
+    // Add a new product to Core Data
     func addProduct(productName: String, productType: String, price: Double, tax: Double, isSynced: Bool, image: UIImage) {
         let newProduct = ProductEntity(context: container.viewContext)
         
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            print("Could not convert image to data")
+            NSLog("Could not convert image to data")
             return
         }
         newProduct.image = imageData
@@ -113,29 +111,42 @@ class HomeViewModel : ObservableObject {
         newProduct.tax = tax
         newProduct.isSynced = false
         saveData()
-        print("Sync successfull and produce added ")
+        NSLog("Product added to Core Data Successfully")
     }
         
-        func deleteProduct(indexSet: IndexSet) {
-            guard let index = indexSet.first else { return }
-            let entity = savedEntities[index]
-            container.viewContext.delete(entity)
-            
-            saveData()
+    // Delete a product from Core Data
+    func deleteProduct(indexSet: IndexSet) {
+        guard let index = indexSet.first else { return }
+        let entity = savedEntities[index]
+        container.viewContext.delete(entity)
+        
+        saveData()
+    }
+        
+    // Save data to Core Data
+    func saveData(){
+        do{
+            try container.viewContext.save()
+            fetchProducts()
+        } catch let error {
+            NSLog("Error in saving \(error)")
         }
-        
-        
-        func saveData(){
-            do{
-                try container.viewContext.save()
-                fetchProducts()
-            } catch let error {
-                print("Error in saving \(error)")
+    }
+    
+    // MARK: - ADD SUBSCRIBERS For Searching, Sort, Getting Products, Form validations
+    func addSubscribers(){
+        // Subscribe to the changes in the searchText, allProducts and sortOption
+        $searchText
+            .combineLatest(dataService.$allProducts, $sortOption)
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)    // So that the search is not triggered on every change in character
+
+            .map(filterAndSortCoinsByFavorite)
+            .sink { [weak self] (returnedProducts) in
+                self?.allProducts = returnedProducts
             }
-        }
-    
-    
-    func productNameSubscriber(){
+            .store(in: &cancellables)
+        
+        // Product Name validation
         $productName
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map({ (productName) -> Bool in
@@ -148,9 +159,8 @@ class HomeViewModel : ObservableObject {
                 self?.isValidProductName = isValidProductName
             })
             .store(in: &cancellables)
-    }
-    
-    func sellingPriceSubscriber(){
+        
+        // Selling Price validation
         $sellingPrice
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map({ (sellingPrice) -> Bool in
@@ -163,9 +173,8 @@ class HomeViewModel : ObservableObject {
                 self?.isValidSellingPrice = isValidSellingPrice
             })
             .store(in: &cancellables)
-    }
-    
-    func taxRateSubscriber(){
+        
+        // Tax Rate validation
         $taxRate
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map({ (taxRate) -> Bool in
@@ -178,33 +187,26 @@ class HomeViewModel : ObservableObject {
                 self?.isValidTaxRate = isValidTaxRate
             })
             .store(in: &cancellables)
-    }
-                     
-    
-//    func refreshAllProducts() {
-////        print("Fetching fresh data")
-//        dataService.getProducts()
-////        print("Fetched fresh data")
-//    }
-
-    
-    
-    // MARK: - FILTER AND SORT
-    private func sortProductsByOption(sort: SortOption, products: [Product]) -> [Product] {
-        switch sort{
-        case .favorite:
-            return products.sorted { $0.isFavorite && !$1.isFavorite }
         }
-    }
     
+
+                         
+    // MARK: - Filter and Sort Logic for mapping
+    // Filter and Sort the products based on the search text and sort option
     private func filterAndSortCoinsByFavorite(text: String, product: [Product], sort: SortOption ) -> [Product] {
         var filteredCoins = filterCoins(text: text, product: product)
 
         filteredCoins = sortProductsByOption(sort: sort, products: filteredCoins)
         return filteredCoins
     }
-        
-    
+    // Sort the products based on the sort option
+    private func sortProductsByOption(sort: SortOption, products: [Product]) -> [Product] {
+        switch sort{
+        case .favorite:
+            return products.sorted { $0.isFavorite && !$1.isFavorite }
+        }
+    }
+    // Filter the products based on the search text
     private func filterCoins(text: String, product: [Product]) -> [Product] {
         guard !text.isEmpty else {
             return product
@@ -215,25 +217,14 @@ class HomeViewModel : ObservableObject {
         }
     }
     
-    func addSubscribers(){
-        $searchText
-            .combineLatest(dataService.$allProducts, $sortOption)
-            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-
-            .map(filterAndSortCoinsByFavorite)
-            .sink { [weak self] (returnedProducts) in
-                self?.allProducts = returnedProducts
-            }
-            .store(in: &cancellables)
-        }
-    
+    // MARK: - Toggle Favorite
     func toggleFavorite(for product: Product) {
         dataService.toggleFavorite(product: product)
-
     }
     
-    
+    // MARK: - Submit Product Logic
     func submitProduct() {
+        // Unwrap the price and tax..
         guard let price = Double(sellingPrice),
               let tax = Double(taxRate) else {
             submissionFeedback = "Please complete all fields"
@@ -242,22 +233,17 @@ class HomeViewModel : ObservableObject {
 
         isSubmitting = true
         submissionFeedback = nil
-//        print("☹️\(NetworkMonitor.shared.isConnected)")
-        
+
+        // If no internet, Save the product to Core Data
         if !NetworkMonitor.shared.isConnected {
             alertItem = AlertContext.noInternet
-
-            // Add to Core data
-
-            
             addProduct(productName: productName, productType: productType, price: price, tax: tax, isSynced: false, image: selectedImage ?? UIImage(named: "placeholder")!)
             isSubmitting = false
             clearForm()
             return
         }
         
-        
-        
+        // Case, when there is internet, upload the product to the server using POST request
         uploadProductWithMultipartData(
             productName: productName,
             productType: productType,
@@ -269,7 +255,6 @@ class HomeViewModel : ObservableObject {
                 self.isSubmitting = false
                 if success {
                     self.alertItem = AlertContext.addProductSuccess
-//                    dataService.getProducts()
                     self.dataService.getProducts()
                     self.clearForm()
                 } else {
@@ -277,7 +262,7 @@ class HomeViewModel : ObservableObject {
                 }
             }
         }
-        // Reset form after submission
+        // Clear the form after submission
         clearForm()
     }
 
@@ -287,24 +272,23 @@ class HomeViewModel : ObservableObject {
         productName = ""
         sellingPrice = ""
         taxRate = ""
-        productType = ""
         selectedImage = nil
     }
-  
+    
+    // MARK: - Network Calls: Upload data as Multipart form data since we are uploading file..
+    
     func uploadProductWithMultipartData(productName: String, productType: String, price: String, tax: String, image: UIImage?, completion: @escaping (Bool) -> Void) {
         guard let url = URL(string: "https://app.getswipe.in/api/public/add") else {
             completion(false)
             return
         }
-
+        // Create a Post request and its requird header
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        // Boundary
         let boundary = "Boundary-\(UUID().uuidString)"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
-        // Construct multipart body
         let body = createMultipartBody(
             parameters: [
                 "product_name": productName,
@@ -317,16 +301,18 @@ class HomeViewModel : ObservableObject {
         )
         request.httpBody = body
         
-        // Send request using URLSession
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            // Handle error
             if let error = error {
-                print("Error: \(error.localizedDescription)")
+                NSLog("Error: \(error.localizedDescription)")
+                self.alertItem = AlertContext.serverNotResponding
                 completion(false)
                 return
             }
-            
+            // Handle response data
             guard let data = data else {
-                print("No response data received")
+                NSLog("No response data received")
+                self.alertItem = AlertContext.serverNotResponding
                 completion(false)
                 return
             }
@@ -334,19 +320,20 @@ class HomeViewModel : ObservableObject {
             // Parse response
             do {
                 if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print("Response: \(jsonResponse)")
+                    NSLog("Response: \(jsonResponse)")
                     completion(true)
                 } else {
                     completion(false)
                 }
             } catch {
-                print("Failed to parse response: \(error.localizedDescription)")
+                NSLog("Failed to parse response: \(error.localizedDescription)")
                 completion(false)
             }
         }
         task.resume()
     }
 
+    // Create a multipart body with parameters
     func createMultipartBody(parameters: [String: String], image: UIImage?, boundary: String) -> Data {
         var body = Data()
         
@@ -373,46 +360,20 @@ class HomeViewModel : ObservableObject {
     }
 
     
-    public func syncProductsWithServer() {
-        print("Syncing products with server...")
+    func syncProductsWithServer() {
+        NSLog("Syncing products with server...")
         
         let unsyncedProducts = savedEntities.filter { !$0.isSynced }
         
         guard !unsyncedProducts.isEmpty else {
-             print("All products are already synced.")
+             NSLog("All products are already synced.")
              return
          }
+        
         for product in unsyncedProducts {
-            guard let productName = product.name,
-                  let productType = product.type,
-                  let imageData = product.image,
-                  let image = UIImage(data: imageData) else {
-                print("Invalid product data. Skipping...")
-                continue
-            }
-            
-            uploadProductWithMultipartData(
-                productName: productName,
-                productType: productType,
-                price: String(product.price),
-                tax: String(product.tax),
-                image: image
-            ) { success in
-                if success {
-                    DispatchQueue.main.async {
-                        // Update product sync status in Core Data
-                        product.isSynced = true
-                        self.saveData()
-                        print("Product \(productName) synced successfully.")
-                        
-                    }
-                } else {
-                    print("Failed to sync product: \(productName)")
-                }
-            }
-//            localProductVM.deleteProduct(indexSet: IndexSet(integer: localProductVM.savedEntities.firstIndex(of: product)!))
+            syncSingleProduct(product: product)
         }
-        deleteAll()
+        
     }
     
     func syncSingleProduct(product: ProductEntity) {
@@ -436,21 +397,17 @@ class HomeViewModel : ObservableObject {
                     // Update product sync status in Core Data
                     product.isSynced = true
                     self.saveData()
-                    
-
                     self.deleteProduct(indexSet: IndexSet(integer: self.savedEntities.firstIndex(of: product)!))
                     
                     self.alertItem = AlertContext.addProductSuccess
-                    
-                    print("Product \(productName) synced and removed successfully.")
+                    self.dataService.getProducts()
+                    NSLog("Product \(productName) synced and removed successfully from Core Data.")
+                   
                 }
             } else {
-                print("Failed to sync product: \(productName)")
+                self.alertItem = AlertContext.addProductError
+                NSLog("Failed to sync product: \(productName)")
             }
         }
     }
-
-
- 
-    
 }
