@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject private var vm: HomeViewModel    
+    @EnvironmentObject private var vm: HomeViewModel 
+    @EnvironmentObject private var networkMonitor: NetworkMonitor
    
     var body: some View {
         ZStack{
@@ -21,9 +22,15 @@ struct HomeView: View {
                 
                 if !vm.showProductAddScreen {
                     SearchBarView(searchText: $vm.searchText)
-                    
-                    productGrid
-                        .transition(.move(edge: .leading))
+                    if networkMonitor.isConnected {
+
+                        productGrid
+                            .transition(.move(edge: .leading))
+                    } else {
+                        noInternetView
+                            .transition(.move(edge: .leading))
+                    }
+     
 
                 }
                 if vm.showProductAddScreen {
@@ -91,5 +98,21 @@ extension HomeView {
             }
             .padding()
         }
+    }
+    private var noInternetView: some View {
+        VStack{
+            
+            Image(systemName: "wifi.slash")
+                .resizable()
+                .scaledToFit()
+                .transition(.move(edge: .leading))
+            Text("You are Offline, Turn on your internet connection. You could still add products, they will be synced once you are online.")
+                .font(.caption)
+                .fontWeight(.heavy)
+                .foregroundColor(Color.theme.accent)
+                .padding()
+                .transition(.move(edge: .leading))
+        }
+        .padding()
     }
 }

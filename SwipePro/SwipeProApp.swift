@@ -10,6 +10,8 @@ import SwiftUI
 @main
 struct SwipeProApp: App {
     @StateObject private var vm = HomeViewModel()
+    let networkMonitor = NetworkMonitor.shared
+    
     var body: some Scene {
         WindowGroup {
             NavigationView{
@@ -18,6 +20,7 @@ struct SwipeProApp: App {
             
             }
             .environmentObject(vm)
+            .environmentObject(networkMonitor)
         }
     }
 }
