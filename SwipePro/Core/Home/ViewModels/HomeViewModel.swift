@@ -61,8 +61,7 @@ class HomeViewModel : ObservableObject {
         productNameSubscriber()
         sellingPriceSubscriber()
         taxRateSubscriber()
-//        self.networkMonitor = networkMonitor
-//        productTypeSubscriber()
+
         
     }
     
@@ -160,9 +159,7 @@ class HomeViewModel : ObservableObject {
     
     func toggleFavorite(for product: Product) {
         dataService.toggleFavorite(product: product)
-//        if let index = dataService.allProducts.firstIndex(where: { $0.id == product.id }) {
-//              dataService.allProducts[index].isFavorite.toggle()
-//          }
+
     }
     
     
@@ -174,7 +171,7 @@ class HomeViewModel : ObservableObject {
         }
 
         isSubmitting = true
-        submissionFeedback = nil // Clear previous feedback
+        submissionFeedback = nil
 //        print("☹️\(NetworkMonitor.shared.isConnected)")
         
         if !NetworkMonitor.shared.isConnected {
@@ -345,5 +342,7 @@ class HomeViewModel : ObservableObject {
         }
         localProductVM.deleteAll()
     }
+    
+ 
     
 }

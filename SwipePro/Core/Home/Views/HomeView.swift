@@ -11,7 +11,7 @@ struct HomeView: View {
     @EnvironmentObject private var vm: HomeViewModel 
     @EnvironmentObject private var networkMonitor: NetworkMonitor
    
-    x
+    
     
     var body: some View {
         ZStack{
