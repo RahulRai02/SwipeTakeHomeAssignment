@@ -12,6 +12,8 @@ struct SwipeProApp: App {
     @StateObject private var vm = HomeViewModel()
     let networkMonitor = NetworkMonitor.shared
     
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    
     init() {
         NSLog("App started init")
         // Monitor network connectivity
@@ -23,16 +25,10 @@ struct SwipeProApp: App {
             NavigationView{
                 HomeView()
                     .navigationBarBackButtonHidden()
-
-            
             }
+            .preferredColorScheme(isDarkMode ? .dark : .light)
             .environmentObject(vm)
             .environmentObject(networkMonitor)
-//            .onAppear{
-//                DispatchQueue.main.async {
-//                    vm.syncProductsWithServer()
-//                }
-//            }
         }
     }
 }

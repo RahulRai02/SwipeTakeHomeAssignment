@@ -10,9 +10,9 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var vm: HomeViewModel 
     @EnvironmentObject private var networkMonitor: NetworkMonitor
+    
+    @AppStorage("isDarkMode") private var isDarkMode = false
    
-    
-    
     var body: some View {
         ZStack{
             Color.theme.background
@@ -20,16 +20,12 @@ struct HomeView: View {
             
             VStack{
                 homeHeader
-                
-                
                 if !vm.showProductAddScreen {
                     SearchBarView(searchText: $vm.searchText)
 
                     if networkMonitor.isConnected{
                         productGrid
                             .transition(.move(edge: .leading))
-                        
-                        
                     }else {
                         noInternetView
                             .transition(.move(edge: .leading))
@@ -57,12 +53,16 @@ struct HomeView: View {
 extension HomeView {
     private var homeHeader: some View {
         HStack{
-            CircleButtonView(iconName: vm.showProductAddScreen ? "plus" : "info")
-                    .opacity(vm.showProductAddScreen ? 0.0 : 1.0)
-                    .disabled(vm.showProductAddScreen ? true : false)
-        
-                    .animation(.none)
-
+            CircleButtonView(iconName: isDarkMode ? "moon.fill" : "sun.max")
+                .opacity(vm.showProductAddScreen ? 0.0 : 1.0)
+                .disabled(vm.showProductAddScreen ? true : false)
+                .onTapGesture {
+                    withAnimation(.easeInOut){
+                        isDarkMode.toggle()
+                    }
+                    
+                }
+            
             Spacer()
             Text(vm.showProductAddScreen ? "Add Products" : "Products")
                 .font(.headline)
@@ -73,7 +73,7 @@ extension HomeView {
             CircleButtonView(iconName: "chevron.right")
                 .rotationEffect(Angle(degrees: vm.showProductAddScreen ? 180 : 0))
                 .onTapGesture {
-                    withAnimation(.spring()) {                        
+                    withAnimation(.spring()) {
                         vm.showProductAddScreen.toggle()
                         
                     }
@@ -83,7 +83,7 @@ extension HomeView {
     }
     
     
-    
+    // MARK: - Product Grid
     private var productGrid: some View {
         ScrollView{
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12, alignment: nil),
@@ -99,23 +99,34 @@ extension HomeView {
                     }
                 }
             }
-            .padding()
+                      .padding()
         }
     }
+    
+    // MARK: - No Internet View
     private var noInternetView: some View {
-        VStack{
-            
+        VStack(spacing: 16) {
             Image(systemName: "wifi.slash")
                 .resizable()
                 .scaledToFit()
-                .transition(.move(edge: .leading))
-            Text("You are Offline, Turn on your internet connection. You could still add products, they will be synced once you are online.")
-                .font(.caption)
-                .fontWeight(.heavy)
+                .frame(width: 80, height: 80) // Adjust size here
                 .foregroundColor(Color.theme.accent)
-                .padding()
                 .transition(.move(edge: .leading))
+
+            Text("You are Offline")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(Color.theme.accent)
+
+            Text("Turn on your internet connection. You can still add products, and they will be synced once you're back online.")
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundColor(Color.theme.red)
+                .padding(.horizontal)
+
         }
         .padding()
     }
+
+    
 }

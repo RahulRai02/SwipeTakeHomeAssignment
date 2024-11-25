@@ -39,6 +39,7 @@ struct AddProductView: View {
                 Text($0)
             }
         }
+        .foregroundColor(Color.theme.accent)
     }
     
     // MARK: - Validation Text Field with diff parameters
@@ -120,7 +121,7 @@ struct AddProductView: View {
                     Spacer()
                 }
             }
-            .foregroundColor(Color.theme.green)
+            .foregroundColor(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? Color.theme.green : Color.theme.red)
             .disabled(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? false : true)
    
         }
@@ -156,9 +157,6 @@ struct AddProductView: View {
     }
 
 }
-
-
-
 
 #Preview {
     AddProductView()
