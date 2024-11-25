@@ -59,13 +59,10 @@ struct ProductCell: View {
             }
 
             .padding([.horizontal, .bottom], 12)
-//            .padding()
    
         }
-//        .frame(width: 150, height: 230)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.theme.background)
-//        .background(Color.red)
         .cornerRadius(15)
         .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 2)
     }

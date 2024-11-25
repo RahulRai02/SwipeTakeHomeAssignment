@@ -127,6 +127,7 @@ struct AddProductView: View {
         }
     }
     
+    
     // MARK: - Unsynced Products Section
     private var unsyncedProductsSection: some View {
         Section(header:  Text("Products to be Synced").foregroundColor(Color.theme.accent)) {
@@ -148,7 +149,7 @@ struct AddProductView: View {
                     }
                         
                     Text(entity.name ?? "No name")
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.theme.accent)
                         .lineLimit(1)
                         .truncationMode(.tail)
 

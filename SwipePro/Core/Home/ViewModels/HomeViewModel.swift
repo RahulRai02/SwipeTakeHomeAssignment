@@ -359,23 +359,7 @@ class HomeViewModel : ObservableObject {
         return body
     }
 
-    
-    func syncProductsWithServer() {
-        NSLog("Syncing products with server...")
         
-        let unsyncedProducts = savedEntities.filter { !$0.isSynced }
-        
-        guard !unsyncedProducts.isEmpty else {
-             NSLog("All products are already synced.")
-             return
-         }
-        
-        for product in unsyncedProducts {
-            syncSingleProduct(product: product)
-        }
-        
-    }
-    
     func syncSingleProduct(product: ProductEntity) {
         guard let productName = product.name,
               let productType = product.type,
