@@ -9,205 +9,159 @@ import SwiftUI
 import Combine
 
 struct AddProductView: View {
-        
-    // Viewmodel
+
     @EnvironmentObject private var vm: HomeViewModel
-    
-    var cancellables = Set<AnyCancellable>()
     let productTypes = ["Electronics", "Clothing", "Grocery", "Books", "Accessories", "Others"]
         
     var body: some View {
         NavigationView {
             Form {
-                // MARK: - Product Details
-                Section(header: Text("Product Details").foregroundColor(Color.theme.accent)) {
-                    Picker("Product Type", selection: $vm.productType) {
-                        ForEach(productTypes, id: \.self) {
-                            Text($0)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    TextField("Product Name", text: $vm.productName)
-                        .foregroundColor(Color.theme.accent)
-                        .overlay(
-                            ZStack{
-                                Text("☹️")
-                                    .opacity(vm.isValidProductName ? 0.0 : 1.0)
-                                Text("😄")
-                                    .opacity(vm.isValidProductName ? 1.0 : 0.0)
-                            }
-                            .font(.title)
-                            .padding(.trailing),
-                            alignment: .trailing
-                        )
-                    
-                    TextField("Selling Price", text: $vm.sellingPrice)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(Color.theme.accent)
-                        .overlay(
-                            ZStack{
-                            Text("😕")
-                                .opacity(vm.isValidSellingPrice ? 0.0 : 1.0)
-
-                            Text("😄")
-                                .opacity(vm.isValidSellingPrice ? 1.0 : 0.0)
-                            }
-                                .font(.title)
-                                .padding(.trailing),
-                            alignment: .trailing
-                        )
-                    TextField("Tax Rate", text: $vm.taxRate)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(Color.theme.accent)
-                        .overlay(
-                            ZStack{
-                                Text("😕")
-                                    .opacity(vm.isValidTaxRate ? 0.0 : 1.0)
-                                Text("😄")
-                                    .opacity(vm.isValidTaxRate ? 1.0 : 0.0)
-                            }
-                                .font(.title)
-                                .padding(.trailing),
-                            alignment: .trailing
-                        )
-                    Button("Clear fields") {
-                        vm.clearForm()
-                    }
-                    .foregroundColor(Color.theme.red)
-                }
-                // MARK: - Product Image Selection
-                Section(header: Text("Product Image")) {
-                    if let image = vm.selectedImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 200, maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } else {
-                        Button(action: {
-                            vm.isImagePickerPresented = true
-                        }) {
-                            Text("Select Image")
-                        }
-                    }
-                }
-                
-                Section{
-                    // MARK: - Submit Button ACTION
-                    Button(action: vm.submitProduct) {
-                        HStack {
-                            Spacer()
-                            if vm.isSubmitting {
-                                ProgressView()
-                            } else {
-                                Text("Submit Product")
-                            }
-                            Spacer()
-                        }
-                    }
-                    .foregroundColor(Color.theme.green)
-                    .disabled(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? false : true)
-           
-                }
-                           
-                Section(header:  Text("Products to be Synced")) {
-                    // Individual Sync Buttons
-                    ForEach(vm.savedEntities, id: \.self) { entity in
-                        HStack {
-                            // Product Name
-                            Text(entity.name ?? "No name")
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-
-                            Spacer()
-
-                            // Sync Button
-                            Button(action: {
-                                vm.syncSingleProduct(product: entity)
-                                vm.dataService.getProducts()
-                            }) {
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                                    .foregroundColor(.blue)
-                                    .padding()
-                            }
-                        }
-                        .padding(.vertical, 5) 
-                    }
-                }
-
+                productDetailSection
+                productImageSection
+                submitButtonSection
+                unsyncedProductsSection
             }
-            
         }
         .sheet(isPresented: $vm.isImagePickerPresented) {
             ImagePicker(image: $vm.selectedImage)
         }
-        
         .alert(item: $vm.alertItem){ alertItem in
             Alert(title: alertItem.title,
                   message: alertItem.message,
                   dismissButton: alertItem.dismissButton)
         }
-
-        
     }
     
-
-
-
-
-}
-
-
-// MARK: - ImagePicker
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var image: UIImage?
-    
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.allowsEditing = true // Enforce 1:1 ratio
-        picker.mediaTypes = ["public.image"]
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: ImagePicker
-        
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-        
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if let editedImage = info[.editedImage] as? UIImage {
-                parent.image = editedImage
-            } else if let originalImage = info[.originalImage] as? UIImage {
-                parent.image = originalImage
+    // MARK: - Product Type Picker
+    private var productTypePicker: some View {
+        Picker("Product Type", selection: $vm.productType) {
+            ForEach(productTypes, id: \.self) {
+                Text($0)
             }
-            picker.dismiss(animated: true)
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
         }
     }
+    
+    // MARK: - Validation Text Field with diff parameters
+    private func validationTextField(title: String, text: Binding<String>, isValid: Bool, keyboardType: UIKeyboardType = .default) -> some View{
+        TextField(title, text: text)
+            .keyboardType(keyboardType)
+            .foregroundColor(Color.theme.accent)
+            .overlay(
+                ZStack {
+                    Text("☹️").opacity(isValid ? 0.0 : 1.0)
+                    Text("😄").opacity(isValid ? 1.0 : 0.0)
+                }
+                .font(.title)
+                .padding(.trailing),
+                alignment: .trailing
+            )
+    }
+    
+    // MARK: - Product Detail Section
+    private var productDetailSection: some View{
+        Section(header: Text("Product Details").foregroundColor(Color.theme.accent)) {
+            productTypePicker
+            validationTextField(
+                title: "Product Name",
+                text: $vm.productName,
+                isValid: vm.isValidProductName
+            )
+            validationTextField(
+                title: "Selling Price",
+                text: $vm.sellingPrice,
+                isValid: vm.isValidSellingPrice,
+                keyboardType: .decimalPad
+            )
+            validationTextField(
+                title: "Tax Rate",
+                text: $vm.taxRate,
+                isValid: vm.isValidTaxRate,
+                keyboardType: .decimalPad
+            )
+            Button("Clear fields") {
+                vm.clearForm()
+            }
+            .foregroundColor(Color.theme.red)
+            
+        }
+    }
+    
+    // MARK: - Product Image Section
+    private var productImageSection: some View {
+        Section(header: Text("Product Image")) {
+            if let image = vm.selectedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 200, maxHeight: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                Button(action: {
+                    vm.isImagePickerPresented = true
+                }) {
+                    Text("Select Image")
+                }
+            }
+        }
+    }
+    
+    // MARK: - Submit Button Section
+    private var submitButtonSection: some View {
+        Section{
+            // MARK: - Submit Button ACTION
+            Button(action: vm.submitProduct) {
+                HStack {
+                    Spacer()
+                    if vm.isSubmitting {
+                        ProgressView()
+                    } else {
+                        Text("Submit Product")
+                    }
+                    Spacer()
+                }
+            }
+            .foregroundColor(Color.theme.green)
+            .disabled(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? false : true)
+   
+        }
+    }
+    
+    // MARK: - Unsynced Products Section
+    private var unsyncedProductsSection: some View {
+        Section(header:  Text("Products to be Synced")) {
+            // Individual Sync Buttons
+            ForEach(vm.savedEntities, id: \.self) { entity in
+                HStack {
+                    // Product Name
+                    Text(entity.name ?? "No name")
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+
+                    Spacer()
+
+                    // Sync Button
+                    Button(action: {
+                        vm.syncSingleProduct(product: entity)
+                        vm.dataService.getProducts()
+                    }) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .foregroundColor(.blue)
+                            .padding()
+                    }
+                }
+                .padding(.vertical, 5)
+            }
+        }
+    }
+
 }
+
+
+
 
 #Preview {
     AddProductView()
 }
 
-// Helper extension to append `String` and `Data` conveniently
-extension Data {
-    mutating func append(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            append(data)
-        }
-    }
-}
+
