@@ -16,7 +16,7 @@ class ProductDataService {
     
     
     init(){
-//        NSLog("ProductDataService initialized")
+        NSLog("ProductDataService initialized")
         loadFavoriteProductIds()
         getProducts()
         
@@ -31,8 +31,7 @@ class ProductDataService {
                 guard let response = output.response as? HTTPURLResponse, response.statusCode >= 200 && response.statusCode < 300 else {
                     throw URLError(.badServerResponse)
                 }
-//                print("Data received")
-//                print(output.data)
+
                 return output.data
             }
             .receive(on: DispatchQueue.main)
@@ -61,7 +60,8 @@ class ProductDataService {
 //                    NSLog(favoriteProductIds.description)
                     self.updateFavoritesInProducts(products: &mutableProducts)
 //                    print("🤪Before printing products")
-                print(mutableProducts)
+//                print(mutableProducts)
+                
 //                    print("🤪After printing products")
                     // Assign the updated products back to the published property
                     self.allProducts = mutableProducts
@@ -85,19 +85,17 @@ class ProductDataService {
     func toggleFavorite(product: Product) {
         let productHash = product.uniqueID
         if let index = allProducts.firstIndex(where: { $0.uniqueID == productHash }) {
-            print("Toggling favorite for \(allProducts[index].productName)")
             allProducts[index].isFavorite.toggle()
 
             if allProducts[index].isFavorite {
-//                print("😄 Adding \(productHash) to favorites")
                 favoriteProductIds.insert(productHash)
             } else {
-//                print("😢 Removing \(productHash) from favorites")
+
                 favoriteProductIds.remove(productHash)
             }
             
             saveFavoriteProductIds()
-            print("Favorite product hashes: \(favoriteProductIds)")
+//            print("Favorite product hashes: \(favoriteProductIds)")
         }
     }
 

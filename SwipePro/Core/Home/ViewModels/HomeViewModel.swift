@@ -8,11 +8,12 @@
 import Foundation
 import Combine
 import SwiftUI
+import CoreData
 
 
 class HomeViewModel : ObservableObject {
 
-    @StateObject var localProductVM: LocalProductViewModel = LocalProductViewModel()
+//    @Published var localProductVM: LocalProductViewModel = LocalProductViewModel()
     @Published var allProducts: [Product] = []
 
     
@@ -50,6 +51,11 @@ class HomeViewModel : ObservableObject {
     @Published var submissionFeedback: String? = nil
     
     
+    // Core data
+    let container: NSPersistentContainer
+    @Published var savedEntities: [ProductEntity] = []
+    
+    
     enum SortOption {
         case favorite
     }
@@ -57,6 +63,18 @@ class HomeViewModel : ObservableObject {
 
     
     init(){
+        container = NSPersistentContainer(name: "ProductContainer")
+        container.loadPersistentStores { description, error in
+            if let error = error {
+                print("Error loading Core data \(error)")
+            }else{
+                print("Successfully loaded core data")
+            }
+        }
+        fetchProducts()
+        
+        
+        NSLog("HomeViewModel init")
         addSubscribers()
         productNameSubscriber()
         sellingPriceSubscriber()
@@ -64,6 +82,58 @@ class HomeViewModel : ObservableObject {
 
         
     }
+    
+    func deleteAll(){
+        for entity in savedEntities{
+            container.viewContext.delete(entity)
+        }
+        saveData()
+    }
+    
+        func fetchProducts() {
+            let request = NSFetchRequest<ProductEntity>(entityName: "ProductEntity")
+            do {
+                savedEntities = try container.viewContext.fetch(request)
+            } catch let error {
+                print("Error in fetching \(error)")
+            }
+        }
+        
+    func addProduct(productName: String, productType: String, price: Double, tax: Double, isSynced: Bool, image: UIImage) {
+        let newProduct = ProductEntity(context: container.viewContext)
+        
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Could not convert image to data")
+            return
+        }
+        newProduct.image = imageData
+        newProduct.name = productName
+        newProduct.price = price
+        newProduct.type = productType
+        newProduct.tax = tax
+        newProduct.isSynced = false
+        saveData()
+        print("Sync successfull and produce added ")
+    }
+        
+        func deleteProduct(indexSet: IndexSet) {
+            guard let index = indexSet.first else { return }
+            let entity = savedEntities[index]
+            container.viewContext.delete(entity)
+            
+            saveData()
+        }
+        
+        
+        func saveData(){
+            do{
+                try container.viewContext.save()
+                fetchProducts()
+            } catch let error {
+                print("Error in saving \(error)")
+            }
+        }
+    
     
     func productNameSubscriber(){
         $productName
@@ -178,7 +248,9 @@ class HomeViewModel : ObservableObject {
             alertItem = AlertContext.noInternet
 
             // Add to Core data
-            localProductVM.addProduct(productName: productName, productType: productType, price: price, tax: tax, isSynced: false, image: selectedImage ?? UIImage(named: "placeholder")!)
+
+            
+            addProduct(productName: productName, productType: productType, price: price, tax: tax, isSynced: false, image: selectedImage ?? UIImage(named: "placeholder")!)
             isSubmitting = false
             clearForm()
             return
@@ -304,7 +376,7 @@ class HomeViewModel : ObservableObject {
     public func syncProductsWithServer() {
         print("Syncing products with server...")
         
-        let unsyncedProducts = localProductVM.savedEntities.filter { !$0.isSynced }
+        let unsyncedProducts = savedEntities.filter { !$0.isSynced }
         
         guard !unsyncedProducts.isEmpty else {
              print("All products are already synced.")
@@ -330,7 +402,7 @@ class HomeViewModel : ObservableObject {
                     DispatchQueue.main.async {
                         // Update product sync status in Core Data
                         product.isSynced = true
-                        self.localProductVM.saveData()
+                        self.saveData()
                         print("Product \(productName) synced successfully.")
                         
                     }
@@ -340,9 +412,45 @@ class HomeViewModel : ObservableObject {
             }
 //            localProductVM.deleteProduct(indexSet: IndexSet(integer: localProductVM.savedEntities.firstIndex(of: product)!))
         }
-        localProductVM.deleteAll()
+        deleteAll()
     }
     
+    func syncSingleProduct(product: ProductEntity) {
+        guard let productName = product.name,
+              let productType = product.type,
+              let imageData = product.image,
+              let image = UIImage(data: imageData) else {
+            print("Invalid product data. Skipping...")
+            return
+        }
+
+        uploadProductWithMultipartData(
+            productName: productName,
+            productType: productType,
+            price: String(product.price),
+            tax: String(product.tax),
+            image: image
+        ) { success in
+            if success {
+                DispatchQueue.main.async {
+                    // Update product sync status in Core Data
+                    product.isSynced = true
+                    self.saveData()
+                    
+
+                    self.deleteProduct(indexSet: IndexSet(integer: self.savedEntities.firstIndex(of: product)!))
+                    
+                    self.alertItem = AlertContext.addProductSuccess
+                    
+                    print("Product \(productName) synced and removed successfully.")
+                }
+            } else {
+                print("Failed to sync product: \(productName)")
+            }
+        }
+    }
+
+
  
     
 }

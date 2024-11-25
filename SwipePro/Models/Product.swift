@@ -27,7 +27,7 @@ struct Product: Codable, Identifiable {
 
     var uniqueID: UInt64 {
         let uniqueString = productName + productType + String(describing: price) + String(describing: tax) + image
-        print("Unique String: \(uniqueString)")
+//        print("Unique String: \(uniqueString)")
         return strHash(uniqueString)
     }
     

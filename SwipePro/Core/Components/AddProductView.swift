@@ -14,11 +14,8 @@ struct AddProductView: View {
     @EnvironmentObject private var vm: HomeViewModel
     
     var cancellables = Set<AnyCancellable>()
-    
     let productTypes = ["Electronics", "Clothing", "Grocery", "Books", "Accessories", "Others"]
-    
-    
-    
+        
     var body: some View {
         NavigationView {
             Form {
@@ -110,8 +107,34 @@ struct AddProductView: View {
                     }
                     .foregroundColor(Color.theme.green)
                     .disabled(vm.isValidProductName && vm.isValidSellingPrice && vm.isValidTaxRate ? false : true)
+           
                 }
-                
+                           
+                Section(header:  Text("Products to be Synced")) {
+                    // Individual Sync Buttons
+                    ForEach(vm.savedEntities, id: \.self) { entity in
+                        HStack {
+                            // Product Name
+                            Text(entity.name ?? "No name")
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+
+                            Spacer()
+
+                            // Sync Button
+                            Button(action: {
+                                vm.syncSingleProduct(product: entity)
+                                vm.dataService.getProducts()
+                            }) {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .foregroundColor(.blue)
+                                    .padding()
+                            }
+                        }
+                        .padding(.vertical, 5) 
+                    }
+                }
 
             }
             

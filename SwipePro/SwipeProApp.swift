@@ -13,8 +13,9 @@ struct SwipeProApp: App {
     let networkMonitor = NetworkMonitor.shared
     
     init() {
+        NSLog("App started init")
+        // Monitor network connectivity
         networkMonitor.startMonitoring()
-//        vm.syncProductsWithServer()
     }
     
     var body: some Scene {
@@ -27,9 +28,11 @@ struct SwipeProApp: App {
             }
             .environmentObject(vm)
             .environmentObject(networkMonitor)
-            .onAppear{
-                vm.syncProductsWithServer()
-            }
+//            .onAppear{
+//                DispatchQueue.main.async {
+//                    vm.syncProductsWithServer()
+//                }
+//            }
         }
     }
 }
