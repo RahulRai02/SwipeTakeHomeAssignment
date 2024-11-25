@@ -12,6 +12,10 @@ struct SwipeProApp: App {
     @StateObject private var vm = HomeViewModel()
     let networkMonitor = NetworkMonitor.shared
     
+    init() {
+        networkMonitor.startMonitoring()
+    }
+    
     var body: some Scene {
         WindowGroup {
             NavigationView{

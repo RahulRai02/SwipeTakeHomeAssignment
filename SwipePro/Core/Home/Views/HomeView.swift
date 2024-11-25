@@ -22,15 +22,15 @@ struct HomeView: View {
                 
                 if !vm.showProductAddScreen {
                     SearchBarView(searchText: $vm.searchText)
-                    if networkMonitor.isConnected {
-
+//                    print(networkMonitor.isConnected)
+//                    if networkMonitor.isConnected {
+                    if networkMonitor.isConnected{
                         productGrid
                             .transition(.move(edge: .leading))
-                    } else {
+                    }else {
                         noInternetView
                             .transition(.move(edge: .leading))
                     }
-     
 
                 }
                 if vm.showProductAddScreen {
