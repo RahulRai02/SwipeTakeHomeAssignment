@@ -11,6 +11,8 @@ struct HomeView: View {
     @EnvironmentObject private var vm: HomeViewModel 
     @EnvironmentObject private var networkMonitor: NetworkMonitor
    
+    x
+    
     var body: some View {
         ZStack{
             Color.theme.background
@@ -22,11 +24,12 @@ struct HomeView: View {
                 
                 if !vm.showProductAddScreen {
                     SearchBarView(searchText: $vm.searchText)
-//                    print(networkMonitor.isConnected)
-//                    if networkMonitor.isConnected {
+
                     if networkMonitor.isConnected{
                         productGrid
                             .transition(.move(edge: .leading))
+                        
+                        
                     }else {
                         noInternetView
                             .transition(.move(edge: .leading))

@@ -14,6 +14,7 @@ struct SwipeProApp: App {
     
     init() {
         networkMonitor.startMonitoring()
+//        vm.syncProductsWithServer()
     }
     
     var body: some Scene {
@@ -21,10 +22,14 @@ struct SwipeProApp: App {
             NavigationView{
                 HomeView()
                     .navigationBarBackButtonHidden()
+
             
             }
             .environmentObject(vm)
             .environmentObject(networkMonitor)
+            .onAppear{
+                vm.syncProductsWithServer()
+            }
         }
     }
 }

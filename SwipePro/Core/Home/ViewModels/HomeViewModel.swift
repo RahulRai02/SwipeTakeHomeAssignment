@@ -11,7 +11,8 @@ import SwiftUI
 
 
 class HomeViewModel : ObservableObject {
-//    @Published var allProducts:
+
+    @StateObject var localProductVM: LocalProductViewModel = LocalProductViewModel()
     @Published var allProducts: [Product] = []
 
     
@@ -60,6 +61,7 @@ class HomeViewModel : ObservableObject {
         productNameSubscriber()
         sellingPriceSubscriber()
         taxRateSubscriber()
+//        self.networkMonitor = networkMonitor
 //        productTypeSubscriber()
         
     }
@@ -173,6 +175,19 @@ class HomeViewModel : ObservableObject {
 
         isSubmitting = true
         submissionFeedback = nil // Clear previous feedback
+//        print("☹️\(NetworkMonitor.shared.isConnected)")
+        
+        if !NetworkMonitor.shared.isConnected {
+            alertItem = AlertContext.noInternet
+
+            // Add to Core data
+            localProductVM.addProduct(productName: productName, productType: productType, price: price, tax: tax, isSynced: false, image: selectedImage ?? UIImage(named: "placeholder")!)
+            isSubmitting = false
+            clearForm()
+            return
+        }
+        
+        
         
         uploadProductWithMultipartData(
             productName: productName,
@@ -288,6 +303,47 @@ class HomeViewModel : ObservableObject {
         return body
     }
 
-
+    
+    public func syncProductsWithServer() {
+        print("Syncing products with server...")
+        
+        let unsyncedProducts = localProductVM.savedEntities.filter { !$0.isSynced }
+        
+        guard !unsyncedProducts.isEmpty else {
+             print("All products are already synced.")
+             return
+         }
+        for product in unsyncedProducts {
+            guard let productName = product.name,
+                  let productType = product.type,
+                  let imageData = product.image,
+                  let image = UIImage(data: imageData) else {
+                print("Invalid product data. Skipping...")
+                continue
+            }
+            
+            uploadProductWithMultipartData(
+                productName: productName,
+                productType: productType,
+                price: String(product.price),
+                tax: String(product.tax),
+                image: image
+            ) { success in
+                if success {
+                    DispatchQueue.main.async {
+                        // Update product sync status in Core Data
+                        product.isSynced = true
+                        self.localProductVM.saveData()
+                        print("Product \(productName) synced successfully.")
+                        
+                    }
+                } else {
+                    print("Failed to sync product: \(productName)")
+                }
+            }
+//            localProductVM.deleteProduct(indexSet: IndexSet(integer: localProductVM.savedEntities.firstIndex(of: product)!))
+        }
+        localProductVM.deleteAll()
+    }
     
 }

@@ -19,6 +19,7 @@ class ProductDataService {
 //        NSLog("ProductDataService initialized")
         loadFavoriteProductIds()
         getProducts()
+        
     }
     
     func getProducts(){
@@ -111,5 +112,6 @@ class ProductDataService {
         }
     }
 
+    
 }
 

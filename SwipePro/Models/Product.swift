@@ -10,8 +10,7 @@ import Foundation
 // MARK: - Product
 struct Product: Codable, Identifiable {
     var id = UUID()
-//    let id : UUID()
-//    var id : UUID
+
     let image: String
     let price: Double?
     let productName, productType: String

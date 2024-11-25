@@ -72,5 +72,7 @@ struct AlertContext {
                                                 message: Text("Please enter a valid product type"),
                                                 dismissButton: .default(Text("OK")))
                                              
-    
+    static let noInternet = AlertItem(title: Text("No Internet Connection"),
+                                                message: Text("Please check your internet connection. Your item will be added once network is available"),
+                                                dismissButton: .default(Text("OK")))
 }
