@@ -164,7 +164,7 @@ class HomeViewModel : ObservableObject {
         $sellingPrice
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map({ (sellingPrice) -> Bool in
-                if let _ = Double(sellingPrice), !sellingPrice.isEmpty, Double(sellingPrice)! > 0 {
+                if let _ = Double(sellingPrice), !sellingPrice.isEmpty, Double(sellingPrice)! >= 0 {
                     return true
                 }
                 return false
@@ -178,7 +178,7 @@ class HomeViewModel : ObservableObject {
         $taxRate
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map({ (taxRate) -> Bool in
-                if let _ = Double(taxRate), !taxRate.isEmpty, Double(taxRate)! > 0 {
+                if let _ = Double(taxRate), !taxRate.isEmpty, Double(taxRate)! >= 0 {
                     return true
                 }
                 return false

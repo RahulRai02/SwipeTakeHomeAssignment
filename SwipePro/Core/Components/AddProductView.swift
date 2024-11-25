@@ -89,7 +89,7 @@ struct AddProductView: View {
     
     // MARK: - Product Image Section
     private var productImageSection: some View {
-        Section(header: Text("Product Image")) {
+        Section(header: Text("Product Image").foregroundColor(Color.theme.accent)) {
             if let image = vm.selectedImage {
                 Image(uiImage: image)
                     .resizable()
@@ -129,11 +129,24 @@ struct AddProductView: View {
     
     // MARK: - Unsynced Products Section
     private var unsyncedProductsSection: some View {
-        Section(header:  Text("Products to be Synced")) {
-            // Individual Sync Buttons
+        Section(header:  Text("Products to be Synced").foregroundColor(Color.theme.accent)) {
             ForEach(vm.savedEntities, id: \.self) { entity in
                 HStack {
-                    // Product Name
+                    if let data = entity.image {
+                        if let image = UIImage(data: data) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .clipShape(Circle())
+                                .frame(width: 50, height: 50)
+                        }
+                    }
+                    else {
+                        Image("placeholder")
+                            .resizable()
+                            .clipShape(Circle())
+                            .frame(width: 50, height: 50)
+                    }
+                        
                     Text(entity.name ?? "No name")
                         .foregroundColor(.primary)
                         .lineLimit(1)
