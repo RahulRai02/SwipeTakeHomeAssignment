@@ -94,13 +94,17 @@ _Add screenshots and videos of the app in action here._
 | **HomeView Dark mode** | **HomeView Light mode** |
 |----------------------------|-------------------------|
 | ![DarkMode_HomeView](https://github.com/user-attachments/assets/876ba03d-4714-41fa-b83a-7f3b150a0feb) | ![LightMode_HomeView](https://github.com/user-attachments/assets/e2270948-9fd0-4b97-b224-3e4bc515c487) |
-
+| **AddProductView Dark Mode** | **AddProductView Light Mode** |
+|![DarkMode_AddProductView](https://github.com/user-attachments/assets/92343508-204e-4433-a6a3-525d7dea59c6) | ![LightMode_AddProductView](https://github.com/user-attachments/assets/17759404-063a-4aa6-9eaa-1995125a2bb9) |
+| **Offline State Dark Mode** | **Offline State Light Mode** |
+| ![DarkMode_OfflineState](https://github.com/user-attachments/assets/a3e313ee-ff89-4bf6-a462-c888224c1246) | ![LightMode_OfflineState](https://github.com/user-attachments/assets/cca693e3-b74b-4cc5-861a-0845c262c182) |
+| **Product to be synced** | **Click on upload button** |
+| ![ProductToSync](https://github.com/user-attachments/assets/4b365861-e464-45ee-9c10-58c7ec507da8) | ![AddedProductWhenOnlineByClick](https://github.com/user-attachments/assets/70be21a8-d0b1-429b-a021-e52d3beb14ce) |
+| **Product added to main homescreen when online** | **Liked the added product** |
+| ![ProductAdded](https://github.com/user-attachments/assets/ed23c630-5f7f-455b-85a8-b9f38f312c88) | ![ProductLiked](https://github.com/user-attachments/assets/fb8b21b7-0b59-4575-8312-f09ef2574fae) |
+| **Search by Title** | **Search by Type** |
+| ![Search by title](https://github.com/user-attachments/assets/7369ff66-2551-45b9-95a5-4ab02b14cd76) | ![SearchByType](https://github.com/user-attachments/assets/396626e2-df0b-45b5-8a83-c5ec02b6c10d) |
 ---
-
-
-
-
-
 
 ## 🌐 Technologies Used  
 - **Swift** & **SwiftUI**  
@@ -109,4 +113,12 @@ _Add screenshots and videos of the app in action here._
 - **MVVM Architecture** for clean code structure.  
 
 ---
+## Video Link
 
+https://drive.google.com/file/d/1P-SJhL59CJ-v8md5YXn-5Y868RoTqQE7/view?usp=sharing
+
+
+
+https://github.com/user-attachments/assets/e90e8d65-a147-4f3f-ae45-74f763edc6ed
+
+---
