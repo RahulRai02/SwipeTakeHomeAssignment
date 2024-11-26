@@ -116,7 +116,7 @@ struct AddProductView: View {
                     if vm.isSubmitting {
                         ProgressView()
                     } else {
-                        Text("Submit Product")
+                        Text("Add Product")
                     }
                     Spacer()
                 }
